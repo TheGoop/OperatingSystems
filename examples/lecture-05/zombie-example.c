@@ -22,15 +22,16 @@ int print_state(pid_t pid) {
   }
   close(fd);
 
+  size_t bytes_read = ret;
   char state_prefix[] = "State:\t";
-  for (int i = 0; i < sizeof(buffer); ++i) {
-    size_t remaining = sizeof(buffer) - i;
+  for (int i = 0; i < bytes_read; ++i) {
+    size_t remaining = bytes_read - i;
     size_t state_len = sizeof(state_prefix) - 1;
     if (remaining < state_len) {
       break;
     }
     if (strncmp(buffer + i, state_prefix, state_len) == 0) {
-      for (int j = (i + state_len); j < sizeof(buffer); ++j) {
+      for (int j = (i + state_len); j < bytes_read; ++j) {
 	ret = printf("%c", buffer[j]);
 	if (ret < 0) {
 	  return ret;
