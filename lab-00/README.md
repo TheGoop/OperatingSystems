@@ -1,20 +1,21 @@
 # A Kernel Seedling
 
-One sentence description
+The module outputs a count of the total number of running processes.
 
 ## Building
 
-Explain how to build your kernel module
+Run make.
 
 ## Running
 
-Explain how to run your kernel module and what to expect
+After building, use "sudo insmod proc_count.ko" to insert the module into the kernel. Then, 
+do "cat /proc/count" to run the module.
 
 ## Cleaning Up
 
-Explain how to remove your kernel module and clean up the code
+Do "sudo rmmod proc_count" to remove the module from the kernel, then run "make clean" to 
+remove all the generated files.
 
 ## Testing
 
-Report which kernel version you tested your module on (hint: use `uname`, check
-for options with `man uname`)
+Kernel Version: #1 SMP PREEMPT Wed, 24 Mar 2021 18:53:54 +0000.
