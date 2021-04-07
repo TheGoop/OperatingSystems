@@ -1,6 +1,7 @@
 #include <linux/module.h>
-#include <linux/printk.h>
-
+#include <linux/proc_fs.h>
+#include <linux/sched/signal.h>
+#include <linux/seq_file.h>
 static struct proc_dir_entry *count_file;
 static int proc_count_show(struct seq_file *m, void *v)
 {
