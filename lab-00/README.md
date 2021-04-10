@@ -18,4 +18,5 @@ remove all the generated files.
 
 ## Testing
 
-Kernel Version: #1 SMP PREEMPT Wed, 24 Mar 2021 18:53:54 +0000.
+Kernel Version: 
+5.11.9-arch1-1
