@@ -20,6 +20,8 @@ struct process {
   TAILQ_ENTRY(process) pointers;
 
   /* Additional fields here */
+  u32 remaining_time;
+  /* End of "Additional fields here" */
 };
 
 TAILQ_HEAD(process_list, process);
@@ -110,6 +112,52 @@ int main(int argc, char *argv[])
   TAILQ_INIT(&list);
 
   /* Your code here */
+  struct process *p;
+  for (u32 i = 0; i < size; ++i) {
+    p = &data[i];
+    p->remaining_time = p->burst_time;
+  }
+  u32 t = 0;
+  bool finished = false;
+  while (!finished) {
+    for (u32 i = 0; i < size; ++i) {
+      p = &data[i];
+      if (p->arrival_time == t) {
+	TAILQ_INSERT_HEAD(&list, p, pointers);
+      }
+    }
+
+    if (!TAILQ_EMPTY(&list)) {
+      struct process *lowest = NULL;
+      TAILQ_FOREACH(p, &list, pointers) {
+	if (lowest == NULL) {
+	  lowest = p;
+	  continue;
+	}
+	if (p->remaining_time < lowest->remaining_time) {
+	  lowest = p;
+	}
+      }
+
+      /* I have the lowest time remaining in `lowest` */
+      lowest->remaining_time -= 1;
+      if (lowest->remaining_time == 0) {
+	TAILQ_REMOVE(&list, lowest, pointers);
+      }
+    }
+
+    finished = true;
+    for (u32 i = 0; i < size; ++i) {
+      p = &data[i];
+      if (p->remaining_time != 0) {
+	finished = false;
+	break;
+      }
+    }
+
+    ++t;
+  }
+  /* End of "Your code here" */
 
   free(data);
   return 0;
