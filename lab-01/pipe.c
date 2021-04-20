@@ -25,16 +25,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
-		
 	int i;
 	for (i = 1; i < argc; i++)
 		printf("%d: %s\n", i, argv[i]);
 	printf("%d\n", argc);
 	*/
-
-	//iterate through every process from left to right 1 -> argc
-	//execute each process with the stdin of the stdout of the prev process
-	//print to stdout the stoud of the last process to run
 
 	int rows = argc - 1; //need a set of fds between every process, and a final set to the parent
 	int cols = 2;
@@ -45,32 +40,76 @@ int main(int argc, char *argv[])
 		for (j = 0; j < cols; j++)
 		{
 			*(fds + i * cols + j) = 0;
-			printf("Row: %d, Col: %d, Val: %d \n", i, j, *(fds + i * cols + j));
+			//printf("Row: %d, Col: %d, Val: %d \n", i, j, *(fds + i * cols + j));
 		}
 	}
 
 	//load pipe file descriptos into fds
+	int cpid;
 	for (i = 0; i < rows; i++)
 	{
-		pipe(fds + i * cols);
+		cpid = pipe(fds + i * cols);
+		if (cpid == -1)
+		{
+			fprintf(stderr, "Pipe failed.\n");
+			return EXIT_FAILURE;
+		}
 	}
 
+	//set the last file descriptor to 1 so that the last process prints the output directly
+	*(fds + (rows - 1) * cols + cols - 1) = 1;
+
+	int readfd = 0;
+	int writefd = 1;
+
+	pid_t pid;
 	//spawn the processes
 	for (i = 1; i < argc; i++)
 	{
 		//set the appropriate fd for this process
-		//read = [i - 1][0]
-		//write = [i][1]
+		if (i != 1)
+		{
+			readfd = get(fds, cols, i - 2, 0);
+		}
+		writefd = get(fds, cols, i - 1, 1);
+		//printf("Command: %s, Read: %d, Write: %d \n", argv[i], readfd, writefd);
+
 		//fork
+		pid = fork();
 
 		//if child:
-		//execlp call to argv[i]
+		if (pid == (pid_t)0)
+		{
+			//execlp call to argv[i]
+		}
+
+		// else if fork failed
+		else if (pid < (pid_t)0)
+		{
+			fprintf(stderr, "Fork failed.\n");
+			return EXIT_FAILURE;
+		}
 
 		//else if parent:
-		//do nothing, keep going
+		else
+		{
+			//do nothing, keep going
+		}
 	}
 
-	//wait for all of the processes to finish
+	/* Wait for children to exit. */
+	int n = argc - 1; //number of commands aka processes because argc is 1 more than number of args
+	int status;
+	while (n > 0)
+	{
+		pid = wait(&status);
+		printf("Child with PID %ld exited with status 0x%x.\n", (long)pid, status);
+		--n; // TODO(pts): Remove pid from the pids array.
+	}
 
 	return 0;
 }
+
+//ls   read      write 0, 1
+//cat  read 0, 0 write 1, 1
+//wc   read 1, 0 write 2, 1
