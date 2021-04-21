@@ -89,9 +89,7 @@ int main(int argc, char *argv[])
 
 			if (execlp(argv[i], argv[i]) == -1)
 			{
-				printf("Fail.");
-				printf("%s failed with errno %d", argv[i], errno);
-				return errno;
+				fprintf(stderr, "%s failed with errno %d", argv[i], errno);
 			}
 		}
 
@@ -117,11 +115,11 @@ int main(int argc, char *argv[])
 	while (n > 0)
 	{
 		pid = wait(&status);
-		printf("Child with PID %ld exited with status 0x%x.\n", (long)pid, status);
+		fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, status);
 		--n; // TODO(pts): Remove pid from the pids array.
 	}
 
-	return 0;
+	return errno;
 }
 
 //ls   read      write 0, 1
