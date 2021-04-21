@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
 			{
 				printf("Fail.");
 				printf("%s failed with errno %d", argv[i], errno);
+				return errno;
 			}
 		}
 
