@@ -110,7 +110,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	free(fds);
 	/* Wait for children to exit. */
 	int n = argc - 1; //number of commands aka processes because argc is 1 more than number of args
 	int status;
@@ -124,6 +123,8 @@ int main(int argc, char *argv[])
 		}
 		--n; // TODO(pts): Remove pid from the pids array.
 	}
+
+	free(fds);
 
 	return errno;
 }
