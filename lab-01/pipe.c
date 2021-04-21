@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
 
 			if (execlp(argv[i], argv[i]) == -1)
 			{
-				fprintf(stderr, "%s failed with errno %d", argv[i], errno);
-				exit(errno);
+				//fprintf(stderr, "%s failed with errno %d", argv[i], errno);
+				return errno;
 			}
 		}
 
