@@ -5,12 +5,6 @@
 #include <sys/wait.h>
 #include <errno.h>
 
-char *run_process(char *process, char *input)
-{
-	//Executes and returns the stdout of the process that runs
-	//execlp(process, process) and input
-	return "";
-}
 int get(int *fds, int colLength, int r, int c)
 {
 	return *(fds + r * colLength + c);
@@ -66,6 +60,7 @@ int main(int argc, char *argv[])
 	int writefd = 1;
 
 	pid_t pid;
+	pid_t child_pids[argc];
 	//spawn the processes
 	for (i = 1; i < argc; i++)
 	{
@@ -104,21 +99,19 @@ int main(int argc, char *argv[])
 		//else if parent:
 		else
 		{
-			//do nothing, keep going
+			child_pids[i] = pid;
 			close(readfd);
 			close(writefd);
 		}
 	}
 
-	/* Wait for children to exit. */
-	int n = argc - 1; //number of commands aka processes because argc is 1 more than number of args
 	int status;
-	while (n > 0)
+	for (i = 1; i < argc; i++)
 	{
-		pid = wait(&status);
+		pid = waitpid(child_pids[i], &status, 0);
 		if (pid == -1)
 		{
-			perror("Wait failed");
+			perror("Wait Failed");
 			exit(errno);
 		}
 
@@ -127,8 +120,27 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, WEXITSTATUS(status));
 			exit(WEXITSTATUS(status));
 		}
-		--n; // TODO(pts): Remove pid from the pids array.
 	}
+
+	// /* Wait for children to exit. */
+	// int n = argc - 1; //number of commands aka processes because argc is 1 more than number of args
+	// int status;
+	// while (n > 0)
+	// {
+	// 	pid = wait(&status);
+	// 	if (pid == -1)
+	// 	{
+	// 		perror("Wait failed");
+	// 		exit(errno);
+	// 	}
+
+	// 	if (WIFEXITED(status))
+	// 	{
+	// 		fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, WEXITSTATUS(status));
+	// 		exit(WEXITSTATUS(status));
+	// 	}
+	// 	--n; // TODO(pts): Remove pid from the pids array.
+	// }
 
 	free(fds);
 
