@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 	while (n > 0)
 	{
 		pid = wait(&status);
-		fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, status);
+		//fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, status);
 		if (status != 0)
 		{
 			exit(status);
