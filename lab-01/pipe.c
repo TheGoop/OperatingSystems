@@ -80,7 +80,10 @@ int main(int argc, char *argv[])
 		//if child:
 		if (pid == (pid_t)0)
 		{
-			//execlp call to argv[i]
+			//changes the read, write fds then calls the program to be run
+			dup2(readfd, 0);
+			dup2(writefd, 1);
+			execlp(argv[i], argv[i]);
 		}
 
 		// else if fork failed
@@ -94,6 +97,8 @@ int main(int argc, char *argv[])
 		else
 		{
 			//do nothing, keep going
+			close(readfd);
+			close(writefd);
 		}
 	}
 
