@@ -85,7 +85,12 @@ int main(int argc, char *argv[])
 			//changes the read, write fds then calls the program to be run
 			dup2(readfd, 0);
 			dup2(writefd, 1);
-			execlp(argv[i], argv[i]);
+
+			if (execlp(argv[i], argv[i]) == -1)
+			{
+				printf("%s failed with errno %d", argv[i], errno);
+				return errno;
+			}
 		}
 
 		// else if fork failed
