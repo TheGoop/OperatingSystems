@@ -116,10 +116,16 @@ int main(int argc, char *argv[])
 	while (n > 0)
 	{
 		pid = wait(&status);
-		if (status != 0)
+		if (pid == -1)
 		{
-			fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, status);
-			exit(status);
+			perror("Wait failed");
+			exit(errno);
+		}
+
+		if (WIFEXITED(status))
+		{
+			fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, WEXITSTATUS(status));
+			exit(WEXITSTATUS(status));
 		}
 		--n; // TODO(pts): Remove pid from the pids array.
 	}
