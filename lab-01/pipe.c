@@ -79,8 +79,15 @@ int main(int argc, char *argv[])
 		if (pid == (pid_t)0)
 		{
 			//changes the read, write fds then calls the program to be run
-			dup2(readfd, 0);
-			dup2(writefd, 1);
+			if (dup2(readfd, 0) == -1)
+			{
+				return errno;
+			}
+
+			if (dup2(writefd, 1) == -1)
+			{
+				return errno;
+			}
 
 			if (execlp(argv[i], argv[i]) == -1)
 			{
@@ -92,7 +99,7 @@ int main(int argc, char *argv[])
 		// else if fork failed
 		else if (pid < (pid_t)0)
 		{
-			fprintf(stderr, "Fork failed.\n");
+			//fprintf(stderr, "Fork failed.\n");
 			return EXIT_FAILURE;
 		}
 
@@ -111,13 +118,13 @@ int main(int argc, char *argv[])
 		pid = waitpid(child_pids[i], &status, 0);
 		if (pid == -1)
 		{
-			perror("Wait Failed");
+			//perror("Wait Failed");
 			exit(errno);
 		}
 
 		if (WIFEXITED(status))
 		{
-			fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, WEXITSTATUS(status));
+			//fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, WEXITSTATUS(status));
 			exit(WEXITSTATUS(status));
 		}
 	}
