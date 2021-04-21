@@ -117,6 +117,10 @@ int main(int argc, char *argv[])
 	{
 		pid = wait(&status);
 		fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, status);
+		if (status != 0)
+		{
+			exit(status);
+		}
 		--n; // TODO(pts): Remove pid from the pids array.
 	}
 
