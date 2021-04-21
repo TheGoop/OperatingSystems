@@ -1,15 +1,17 @@
 # Pipe Up
 
-One sentence description
+This program implements the | command in shell.
 
 ## Building
 
-Explain briefly how to build your program
+Run make.
 
 ## Running
 
 Show an example run of your program, using at least two additional arguments, and what to expect
+./pipe ls cat will output the files in the current working directory.
+
 
 ## Cleaning up
 
-Explain briefly how to clean up all binary files
+Run make clean.
