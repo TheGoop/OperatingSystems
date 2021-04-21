@@ -106,9 +106,17 @@ int main(int argc, char *argv[])
 		//else if parent:
 		else
 		{
+			//save the childs pid so we can wait on it after spawning in all of the children first
 			child_pids[i] = pid;
-			close(readfd);
-			close(writefd);
+			if (close(readfd) == -1)
+			{
+				return errno;
+			}
+
+			if (close(writefd) == -1)
+			{
+				return errno;
+			}
 		}
 	}
 
