@@ -119,6 +119,8 @@ int main(int argc, char *argv[])
 		--n; // TODO(pts): Remove pid from the pids array.
 	}
 
+	free(fds);
+
 	return errno;
 }
 
