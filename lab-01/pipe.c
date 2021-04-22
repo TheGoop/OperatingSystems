@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
 	}
 
 	int status;
+	int rerror = 0;
 	for (i = 1; i < argc; i++)
 	{
 		pid = waitpid(child_pids[i], &status, 0);
@@ -133,7 +134,13 @@ int main(int argc, char *argv[])
 		if (WIFEXITED(status))
 		{
 			//fprintf(stderr, "Child with PID %ld exited with status 0x%x.\n", (long)pid, WEXITSTATUS(status));
-			exit(WEXITSTATUS(status));
+
+			//we will save the first error from a child process we see and return it
+			// we need to wait on all the processes, so cannot return immediately
+			if (rerror == 0)
+			{
+				rerror = WEXITSTATUS(status);
+			}
 		}
 	}
 
@@ -159,7 +166,7 @@ int main(int argc, char *argv[])
 
 	free(fds);
 
-	return errno;
+	return rerror;
 }
 
 //ls   read      write 0, 1
