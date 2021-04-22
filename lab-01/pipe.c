@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
 			//we will save the first error from a child process we see and return it
 			// we need to wait on all the processes, so cannot return immediately
-			if (rerror == 0)
+			if (rerror == 0 && WEXITSTATUS(status) != 0)
 			{
 				rerror = WEXITSTATUS(status);
 			}
