@@ -12,6 +12,10 @@ int get(int *fds, int colLength, int r, int c)
 
 int main(int argc, char *argv[])
 {
+	if (argc <= 1)
+	{
+		return EINVAL;
+	}
 	/*
 	for (i = 0; i < rows; i++)
 	{
