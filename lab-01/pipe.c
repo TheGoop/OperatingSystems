@@ -30,13 +30,15 @@ int main(int argc, char *argv[])
 
 	int rows = argc - 1; //need a set of fds between every process, and a final set to the parent
 	int cols = 2;
-	int *fds = (int *)malloc(rows * cols * sizeof(int));
+	//int *fds = (int *)malloc(rows * cols * sizeof(int));
+	int fds[rows][cols];
 	int i, j;
 	for (i = 0; i < rows; i++)
 	{
 		for (j = 0; j < cols; j++)
 		{
-			*(fds + i * cols + j) = 0;
+			//*(fds + i * cols + j) = 0;
+			fds[i][j] = 0;
 			//printf("Row: %d, Col: %d, Val: %d \n", i, j, *(fds + i * cols + j));
 		}
 	}
@@ -45,7 +47,8 @@ int main(int argc, char *argv[])
 	int cpid;
 	for (i = 0; i < rows; i++)
 	{
-		cpid = pipe(fds + i * cols);
+		//cpid = pipe(fds + i * cols);
+		cpid = pipe(fds[i]);
 		if (cpid == -1)
 		{
 			fprintf(stderr, "Pipe failed.\n");
@@ -54,7 +57,8 @@ int main(int argc, char *argv[])
 	}
 
 	//set the last file descriptor to 1 so that the last process prints the output directly
-	*(fds + (rows - 1) * cols + cols - 1) = 1;
+	//*(fds + (rows - 1) * cols + cols - 1) = 1;
+	fds[rows - 1][cols - 1] = 1;
 
 	int readfd = 0;
 	int writefd = 1;
@@ -67,9 +71,11 @@ int main(int argc, char *argv[])
 		//set the appropriate fd for this process
 		if (i != 1)
 		{
-			readfd = get(fds, cols, i - 2, 0);
+			//readfd = get(fds, cols, i - 2, 0);
+			readfd = fds[i - 2][0];
 		}
-		writefd = get(fds, cols, i - 1, 1);
+		//writefd = get(fds, cols, i - 1, 1);
+		writefd = fds[i - 1][1];
 		//printf("Command: %s, Read: %d, Write: %d \n", argv[i], readfd, writefd);
 
 		//fork
@@ -164,7 +170,7 @@ int main(int argc, char *argv[])
 	// 	--n; // TODO(pts): Remove pid from the pids array.
 	// }
 
-	free(fds);
+	//free(fds);
 
 	return rerror;
 }
