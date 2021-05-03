@@ -1,2 +1,6 @@
 /create-fork
 /create-pthread
+/detached-error
+/detached-fixed
+/stack-size
+/pthread-datarace
