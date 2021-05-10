@@ -172,6 +172,7 @@ int main(int argc, char *argv[])
     p->remaining_time = p->burst_time;
     p->has_started = false;
     p->rr_time = quantum_length;
+    printf("PID: %d; Arrival Time: %d; Burst: %d\n", p->pid, p->arrival_time, p->burst_time);
   }
 
   u32 t = 0;
@@ -184,7 +185,7 @@ int main(int argc, char *argv[])
       p = &data[i];
       if (p->arrival_time == t)
       {
-        printf("PID %d arrived.\n", p->arrival_time);
+        // printf("PID %d arrived.\n", p->pid);
         p->remaining_time = p->burst_time;
         p->has_started = false;
         p->rr_time = quantum_length;
@@ -197,6 +198,15 @@ int main(int argc, char *argv[])
     if (!TAILQ_EMPTY(&list))
     {
       p = TAILQ_FIRST(&list);
+      // if p doesn't have time left in its rr turn
+      while (p->rr_time <= 0)
+      {
+        p->rr_time = quantum_length; //reset its turn timer
+        //move p to back of the queue
+        TAILQ_REMOVE(&list, p, pointers);
+        TAILQ_INSERT_TAIL(&list, p, pointers);
+        p = TAILQ_FIRST(&list);
+      }
 
       // if this hasn't recieved a response yet, update the total response time
       if (p->has_started == false)
@@ -207,7 +217,7 @@ int main(int argc, char *argv[])
       }
 
       //"run" p
-      printf("Time: %d, run process %d\n", t, p->pid);
+      // printf("Time: %d, run process %d\n", t, p->pid);
       p->rr_time -= 1;
       p->remaining_time -= 1;
 
@@ -219,15 +229,6 @@ int main(int argc, char *argv[])
         // printf("Arrival: %d, Burst: %d, Finished: %d \n", p->arrival_time, p->burst_time, t);
         //remove from list of processes
         TAILQ_REMOVE(&list, p, pointers);
-      }
-
-      // if p is not done running and doesn't have time left in its rr turn
-      else if (p->rr_time <= 0)
-      {
-        p->rr_time = quantum_length; //reset its turn timer
-        //move p to back of the queue
-        TAILQ_REMOVE(&list, p, pointers);
-        TAILQ_INSERT_TAIL(&list, p, pointers);
       }
     }
 
