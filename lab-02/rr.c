@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     p->remaining_time = p->burst_time;
     p->has_started = false;
     p->rr_time = quantum_length;
-    printf("PID: %d; Arrival Time: %d; Burst: %d\n", p->pid, p->arrival_time, p->burst_time);
+    // printf("PID: %d; Arrival Time: %d; Burst: %d\n", p->pid, p->arrival_time, p->burst_time);
   }
 
   u32 t = 0;
