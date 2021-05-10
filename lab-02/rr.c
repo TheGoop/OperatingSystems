@@ -184,12 +184,13 @@ int main(int argc, char *argv[])
       p = &data[i];
       if (p->arrival_time == t)
       {
+        printf("PID %d arrived.\n", p->arrival_time);
         p->remaining_time = p->burst_time;
         p->has_started = false;
         p->rr_time = quantum_length;
         TAILQ_INSERT_TAIL(&list, p, pointers);
         //we insert at the tail, because newly recieved processes go to the end of the queue not front
-        printf("%d arrived at %d with %d time to burst\n", p->pid, p->arrival_time, p->burst_time);
+        // printf("%d arrived at %d with %d time to burst\n", p->pid, p->arrival_time, p->burst_time);
       }
     }
 
@@ -206,6 +207,7 @@ int main(int argc, char *argv[])
       }
 
       //"run" p
+      printf("Time: %d, run process %d\n", t, p->pid);
       p->rr_time -= 1;
       p->remaining_time -= 1;
 
@@ -219,8 +221,8 @@ int main(int argc, char *argv[])
         TAILQ_REMOVE(&list, p, pointers);
       }
 
-      // if p doesn't have time left in its rr turn
-      if (p->rr_time <= 0)
+      // if p is not done running and doesn't have time left in its rr turn
+      else if (p->rr_time <= 0)
       {
         p->rr_time = quantum_length; //reset its turn timer
         //move p to back of the queue
@@ -229,12 +231,21 @@ int main(int argc, char *argv[])
       }
     }
 
-    t += 1;
+    finished = true;
+    for (u32 i = 0; i < size; i++)
+    {
+      p = &data[i];
+      if (p->arrival_time > t) // if the arrival time of some process is after t
+      {
+        finished = false; //then we can't be done because theres still a process to be done
+      }
 
-    // if (t > 15)
-    // {
-    //   break;
-    // }
+      if (p->remaining_time > 0) // if a process still needs to be finished
+      {
+        finished = false; //then we can't be done
+      }
+    }
+    t += 1;
   }
 
   /* End of "Your code here" */
