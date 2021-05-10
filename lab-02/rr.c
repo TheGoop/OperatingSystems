@@ -218,6 +218,7 @@ int main(int argc, char *argv[])
 
       //"run" p
       // printf("Time: %d, run process %d\n", t, p->pid);
+      // printf("%d ", p->pid);
       p->rr_time -= 1;
       p->remaining_time -= 1;
 
