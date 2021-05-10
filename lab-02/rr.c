@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
         p->rr_time = quantum_length;
         TAILQ_INSERT_TAIL(&list, p, pointers);
         //we insert at the tail, because newly recieved processes go to the end of the queue not front
+        printf("%d arrived at %d with %d time to burst\n", p->pid, p->arrival_time, p->burst_time);
       }
     }
 
@@ -199,7 +200,9 @@ int main(int argc, char *argv[])
       // if this hasn't recieved a response yet, update the total response time
       if (p->has_started == false)
       {
+        // printf("Process %d recieved response at %d. Response Time: %d\n", p->pid, t, t - p->arrival_time);
         total_response_time += t - p->arrival_time;
+        p->has_started = true;
       }
 
       //"run" p
@@ -209,7 +212,9 @@ int main(int argc, char *argv[])
       // if p is done running
       if (p->remaining_time <= 0)
       {
-        total_waiting_time += t - (p->burst_time + p->arrival_time);
+        total_waiting_time += t - (p->burst_time + p->arrival_time) + 1;
+        // printf("Process %d - Wait Time: %d\n", p->pid, t - (p->burst_time + p->arrival_time));
+        // printf("Arrival: %d, Burst: %d, Finished: %d \n", p->arrival_time, p->burst_time, t);
         //remove from list of processes
         TAILQ_REMOVE(&list, p, pointers);
       }
@@ -226,10 +231,10 @@ int main(int argc, char *argv[])
 
     t += 1;
 
-    if (t > 900)
-    {
-      break;
-    }
+    // if (t > 15)
+    // {
+    //   break;
+    // }
   }
 
   /* End of "Your code here" */
