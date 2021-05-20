@@ -91,12 +91,12 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table,
 {
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
 	struct list_head *list_head = &hash_table_entry->list_head;
-	if (pthread_mutex_lock(&hash_table->mutts[1]) != 0)
+	if (pthread_mutex_lock(&hash_table->mutts[0]) != 0)
 	{
 		exit(errno);
 	}
 	struct list_entry *list_entry = get_list_entry(hash_table, key, list_head);
-	if (pthread_mutex_unlock(&hash_table->mutts[1]) != 0)
+	if (pthread_mutex_unlock(&hash_table->mutts[0]) != 0)
 	{
 		exit(errno);
 	}
