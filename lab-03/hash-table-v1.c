@@ -99,13 +99,15 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
 	if (list_entry != NULL)
 	{
 		list_entry->value = value;
-		return;
+	}
+	else
+	{
+		list_entry = calloc(1, sizeof(struct list_entry));
+		list_entry->key = key;
+		list_entry->value = value;
+		SLIST_INSERT_HEAD(list_head, list_entry, pointers);
 	}
 
-	list_entry = calloc(1, sizeof(struct list_entry));
-	list_entry->key = key;
-	list_entry->value = value;
-	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
 	if (pthread_mutex_unlock(&hash_table->mutt) != 0)
 	{
 		exit(errno);
@@ -136,10 +138,12 @@ void hash_table_v1_destroy(struct hash_table_v1 *hash_table)
 			free(list_entry);
 		}
 	}
-	free(hash_table);
 
 	if (pthread_mutex_destroy(&hash_table->mutt) != 0)
 	{
+		free(hash_table);
 		exit(errno);
 	}
+
+	free(hash_table);
 }
