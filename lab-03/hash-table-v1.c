@@ -101,9 +101,15 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
 	list_entry = calloc(1, sizeof(struct list_entry));
 	list_entry->key = key;
 	list_entry->value = value;
-	pthread_mutex_lock(&hash_table->mutt);
+	if (pthread_mutex_lock(&hash_table->mutt) != 0)
+	{
+		exit(errno);
+	}
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
-	pthread_mutex_unlock(&hash_table->mutt);
+	if (pthread_mutex_unlock(&hash_table->mutt) != 0)
+	{
+		exit(errno);
+	}
 }
 
 uint32_t hash_table_v1_get_value(struct hash_table_v1 *hash_table,
