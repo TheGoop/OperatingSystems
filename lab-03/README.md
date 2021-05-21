@@ -31,10 +31,10 @@ getting the linked list head for a hash table entry, this linked list
 implementation utilizes a "dummy head" for the linked list head, so the head never 
 changes. Since getting both the hash table entry pointer and linked list head is 
 deterministic behavior and neither perform writes they do not need to be locked. 
-get_list_entry on the other hand, can be nondeterministic because if a write to the 
-linked list is happening at the same time as the read, the list entry returned is not 
-clear. Therefore, our lock must start after getting the hash table and the linked 
-list head, and before getting the list entry which is what is done.
+get_list_entry on the other hand, can be nondeterministic because if there are 
+two reads at the same time, they can be updated in different ways if the incoming 
+key is the same. Therefore, our lock must start after getting the hash table and 
+the linked list head, and before getting the list entry which is what is done.
 
 Since our unlock for the mutex must come after the writes to the linked list which are 
 done at the end of the function, that is where the correct unlocking call for the mutex 
@@ -65,11 +65,11 @@ adding elements to the hash map is greatly reduced when the entries are differen
 and we prevent data races that can occur when the linked lists being accessed by 
 two or more different threads are the same.
 
-So, we added a lock for every entry. Just like v1, we do not have to lock getting 
+So, we added a lock for every bucket. Just like v1, we do not have to lock getting 
 the hash map entry or getting the linked list head - we have to lock the same region 
-as v1. The difference however is, when a hash map entry is accessed we lock ONLY that 
-hash map entry instead of the entire hash map (as we did in v1), and then we unlock 
-the has map entry after making the writes to the linked list. This method is better than 
+as v1. The difference however is, when a bucket is accessed we lock ONLY that 
+bucket instead of the entire hash map (as we did in v1), and then we unlock 
+the has bucket after making the writes to the linked list. This method is better than 
 v1 because it reduces the overhead by allowing different hash map entry's to be added/modified, 
 and it is correct because it prevents potential data races.
 
