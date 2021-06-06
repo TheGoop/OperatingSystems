@@ -19,7 +19,6 @@ typedef int32_t i32;
 #define BLOCK_OFFSET(i) (i * BLOCK_SIZE)
 #define NUM_BLOCKS 1024
 #define NUM_INODES 128
-#define BYTE_SIZE 8
 
 #define LOST_AND_FOUND_INO 11
 #define HELLO_WORLD_INO 12
@@ -213,8 +212,6 @@ void write_superblock(int fd)
 
 	struct ext2_superblock superblock = {0};
 
-	/* These are intentionally incorrectly set as 0, you should set them
-	   correctly and delete this comment */
 	superblock.s_inodes_count = NUM_INODES;
 	superblock.s_blocks_count = NUM_BLOCKS;
 	superblock.s_r_blocks_count = 0;
@@ -228,19 +225,19 @@ void write_superblock(int fd)
 	superblock.s_frags_per_group = BLOCK_SIZE * 8;	// we assume as many blocks as frags
 	superblock.s_inodes_per_group = NUM_INODES;
 	superblock.s_mtime = 0;				   /* Mount time */
-	superblock.s_wtime = 0;				   /* Write time */
+	superblock.s_wtime = current_time;	   /* Write time */
 	superblock.s_mnt_count = 0;			   /* Number of times mounted so far */
 	superblock.s_max_mnt_count = 0;		   /* Make this unlimited */
 	superblock.s_magic = EXT2_SUPER_MAGIC; /* ext2 Signature */
 	superblock.s_state = 0;				   /* File system is clean */
 	superblock.s_errors = 0;			   /* Ignore the error (continue on) */
 	superblock.s_minor_rev_level = 0;	   /* Leave this as 0 */
-	superblock.s_lastcheck = 0;			   /* Last check time */
-	superblock.s_checkinterval = 0;		   /* Force checks by making them every 1 second */
-	superblock.s_creator_os = 0;		   /* Linux */
+	superblock.s_lastcheck = current_time; /* Last check time */
+	superblock.s_checkinterval = 1;		   /* Force checks by making them every 1 second   DONE */
+	superblock.s_creator_os = 0;		   /* Linux  DONE */
 	superblock.s_rev_level = 0;			   /* Leave this as 0 */
-	superblock.s_def_resuid = 0;		   /* root */
-	superblock.s_def_resgid = 0;		   /* root */
+	superblock.s_def_resuid = 0;		   /* root   DONE */
+	superblock.s_def_resgid = 0;		   /* root   DONE */
 
 	/* You can leave everything below this line the same, delete this
 	   comment when you're done the lab */
@@ -280,14 +277,13 @@ void write_block_group_descriptor_table(int fd)
 
 	struct ext2_block_group_descriptor block_group_descriptor = {0};
 
-	/* These are intentionally incorrectly set as 0, you should set them
-	   correctly and delete this comment */
-	block_group_descriptor.bg_block_bitmap = 0;
-	block_group_descriptor.bg_inode_bitmap = 0;
-	block_group_descriptor.bg_inode_table = 0;
-	block_group_descriptor.bg_free_blocks_count = 0;
-	block_group_descriptor.bg_free_inodes_count = 0;
-	block_group_descriptor.bg_used_dirs_count = 0;
+	/* As per http://www.nongnu.org/ext2-doc/ext2.html#bg-block-bitmap */
+	block_group_descriptor.bg_block_bitmap = 4;
+	block_group_descriptor.bg_inode_bitmap = 4;
+	block_group_descriptor.bg_inode_table = 4;
+	block_group_descriptor.bg_free_blocks_count = 2;
+	block_group_descriptor.bg_free_inodes_count = 2;
+	block_group_descriptor.bg_used_dirs_count = 2;
 
 	ssize_t size = sizeof(block_group_descriptor);
 	if (write(fd, &block_group_descriptor, size) != size)
@@ -298,12 +294,72 @@ void write_block_group_descriptor_table(int fd)
 
 void write_block_bitmap(int fd)
 {
-	/* This is all you */
+	/* This is all me */
+	off_t off = lseek(fd, BLOCK_OFFSET(2), SEEK_SET);
+	if (off == -1)
+	{
+		errno_exit("block_bitmap lseek");
+	}
+	u8 block_bitmap[NUM_BLOCKS];
+	block_bitmap[0] = 0xFF; // Zeroth block is reserved as the boot block
+	block_bitmap[1] = 0xFF; // Super block
+	block_bitmap[2] = 0x7F; // Group descriptor
+
+	int reserved = 3;
+	// Data blocks
+	for (int i = reserved; i < NUM_BLOCKS; i++)
+	{
+		// the first NUM_FREE_BLOCKS after the first 3 blocks will be marked as free
+		if ((i - reserved) < NUM_FREE_BLOCKS)
+		{
+			block_bitmap[i] = 0x00;
+		}
+
+		//the rest as full
+		else
+		{
+			block_bitmap[i] = 0xFF;
+		}
+	}
+
+	// some sort of loading of the bitmap
+
+	if (write(fd, block_bitmap, NUM_BLOCKS) == -1)
+	{
+		errno_exit("block_bitmap write");
+	}
 }
 
 void write_inode_bitmap(int fd)
 {
-	/* This is all you */
+	/* This is all me */
+	off_t off = lseek(fd, BLOCK_OFFSET(2), SEEK_SET);
+	if (off == -1)
+	{
+		errno_exit("inode_bitmap lseek");
+	}
+	u8 inode_bitmap[NUM_INODES];
+	inode_bitmap[0] = 0xFF; // reserved
+	inode_bitmap[1] = 0x1F; // idk
+
+	//some sort of loading of the inode bitmap
+	int reserved = 2;
+	for (int i = reserved; i < NUM_INODES; i++)
+	{
+		if ((i - reserved) < NUM_FREE_INODES)
+		{
+			inode_bitmap[i] = 0x00;
+		}
+		else
+		{
+			inode_bitmap[i] = 0xFF;
+		}
+	}
+
+	if (write(fd, inode_bitmap, NUM_INODES) == -1)
+	{
+		errno_exit("inode_bitmap write");
+	}
 }
 
 void write_inode(int fd, u32 index, struct ext2_inode *inode)
@@ -340,8 +396,37 @@ void write_inode_table(int fd)
 	lost_and_found_inode.i_block[0] = LOST_AND_FOUND_DIR_BLOCKNO;
 	write_inode(fd, LOST_AND_FOUND_INO, &lost_and_found_inode);
 
-	/* You should add your 3 other inodes in this function and delete this
-	   comment */
+	/* HELLO WORLD FILE INODE*/
+	struct ext2_inode hello_world_inode = {0};
+	hello_world_inode.i_mode = EXT2_S_IFREG | EXT2_S_IRUSR | EXT2_S_IWUSR | EXT2_S_IRGRP | EXT2_S_IROTH;
+	hello_world_inode.i_uid = 1000;
+	hello_world_inode.i_size = 12;
+	hello_world_inode.i_atime = current_time;
+	hello_world_inode.i_ctime = current_time;
+	hello_world_inode.i_mtime = current_time;
+	hello_world_inode.i_dtime = 0;
+	hello_world_inode.i_gid = 1000;
+	hello_world_inode.i_links_count = 1;
+	hello_world_inode.i_blocks = 2;							 //not sure about this
+	hello_world_inode.i_block[0] = HELLO_WORLD_FILE_BLOCKNO; //not sure about this
+	write_inode(fd, HELLO_WORLD_INO, &hello_world_inode);
+
+	/* Hello sym link */
+	struct ext2_inode hello_inode = {0};
+	hello_inode.i_mode = EXT2_S_IFLNK | EXT2_S_IRUSR | EXT2_S_IWUSR | EXT2_S_IRGRP | EXT2_S_IROTH;
+	hello_inode.i_uid = 100;
+	hello_inode.i_size = 11; // since its a soft link and points to "hello-world" which is 11 bytes
+	hello_inode.i_atime = current_time;
+	hello_inode.i_ctime = current_time;
+	hello_inode.i_mtime = current_time;
+	hello_inode.i_dtime = 0;
+	hello_inode.i_gid = 1000;
+	hello_inode.i_links_count = 1;
+	hello_inode.i_blocks = 2;				  //not sure about this
+	hello_inode.i_block[0] = HELLO_WORLD_INO; //not sure about this
+	write_inode(fd, HELLO_INO, &hello_inode);
+
+	/* */
 }
 
 void write_root_dir_block(int fd)
