@@ -420,10 +420,9 @@ void write_inode_table(int fd)
 	hello_inode.i_dtime = 0;
 	hello_inode.i_gid = 1000;
 	hello_inode.i_links_count = 1;
-	hello_inode.i_blocks = 1; //not sure about this
+	hello_inode.i_blocks = 0; //not sure about this
 	char *src = "hello-world";
-	memcpy(hello_inode.i_block, src, strlen(src) + 1);
-	// hello_inode.i_block[0] = "hello-world"; //not sure about this
+	memcpy(hello_inode.i_block, src, strlen(src));
 	write_inode(fd, HELLO_INO, &hello_inode);
 
 	/* root directory inode */
