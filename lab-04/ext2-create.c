@@ -308,7 +308,7 @@ void write_block_bitmap(int fd)
 	for (int i = reserved; i < NUM_BLOCKS; i++)
 	{
 		// the first NUM_FREE_BLOCKS after the first 3 blocks will be marked as free
-		if (i < NUM_BLOCKS / 8)
+		if (i < (NUM_BLOCKS / 8))
 		{
 			block_bitmap[i] = 0x00;
 		}
@@ -319,8 +319,6 @@ void write_block_bitmap(int fd)
 			block_bitmap[i] = 0xFF;
 		}
 	}
-
-	// some sort of loading of the bitmap
 
 	if (write(fd, block_bitmap, NUM_BLOCKS) == -1)
 	{
