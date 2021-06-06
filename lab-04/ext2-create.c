@@ -305,10 +305,10 @@ void write_block_bitmap(int fd)
 
 	int reserved = 3;
 	// Data blocks
-	for (int i = reserved; i < NUM_BLOCKS - 1; i++)
+	for (int i = reserved; i < NUM_BLOCKS; i++)
 	{
 		// the first NUM_FREE_BLOCKS after the first 3 blocks will be marked as free
-		if ((i - reserved) < NUM_FREE_BLOCKS)
+		if (i < reserved + NUM_FREE_BLOCKS)
 		{
 			block_bitmap[i] = 0x00;
 		}
@@ -322,7 +322,7 @@ void write_block_bitmap(int fd)
 
 	// some sort of loading of the bitmap
 
-	if (write(fd, block_bitmap, NUM_BLOCKS - 1) == -1)
+	if (write(fd, block_bitmap, NUM_BLOCKS) == -1)
 	{
 		errno_exit("block_bitmap write");
 	}
@@ -420,8 +420,10 @@ void write_inode_table(int fd)
 	hello_inode.i_dtime = 0;
 	hello_inode.i_gid = 1000;
 	hello_inode.i_links_count = 1;
-	// hello_inode.i_blocks = 2;	//not sure about this
-	// hello_inode.i_block[0] = 0; //not sure about this
+	hello_inode.i_blocks = 1; //not sure about this
+	char *src = "hello-world";
+	memcpy(hello_inode.i_block, src, strlen(src) + 1);
+	// hello_inode.i_block[0] = "hello-world"; //not sure about this
 	write_inode(fd, HELLO_INO, &hello_inode);
 
 	/* root directory inode */
@@ -466,7 +468,7 @@ void write_root_dir_block(int fd)
 	//---
 
 	struct ext2_dir_entry hello_world_entry = {0};
-	dir_entry_set(hello_world_entry, HELLO_WORLD_INO, "hello_world");
+	dir_entry_set(hello_world_entry, HELLO_WORLD_INO, "hello-world");
 	dir_entry_write(hello_world_entry, fd);
 	bytes_remaining -= hello_world_entry.rec_len;
 
