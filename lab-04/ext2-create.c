@@ -202,7 +202,7 @@ u32 get_current_time()
 
 void write_superblock(int fd)
 {
-	off_t off = lseek(fd, BLOCK_OFFSET(1), SEEK_SET);
+	off_t off = lseek(fd, BLOCK_OFFSET(SUPERBLOCK_BLOCKNO), SEEK_SET);
 	if (off == -1)
 	{
 		errno_exit("lseek");
@@ -267,7 +267,7 @@ void write_superblock(int fd)
 
 void write_block_group_descriptor_table(int fd)
 {
-	off_t off = lseek(fd, BLOCK_OFFSET(2), SEEK_SET);
+	off_t off = lseek(fd, BLOCK_OFFSET(BLOCK_GROUP_DESCRIPTOR_BLOCKNO), SEEK_SET);
 	if (off == -1)
 	{
 		errno_exit("lseek");
@@ -293,7 +293,7 @@ void write_block_group_descriptor_table(int fd)
 void write_block_bitmap(int fd)
 {
 	/* This is all me */
-	off_t off = lseek(fd, BLOCK_OFFSET(2), SEEK_SET);
+	off_t off = lseek(fd, BLOCK_OFFSET(BLOCK_BITMAP_BLOCKNO), SEEK_SET);
 	if (off == -1)
 	{
 		errno_exit("block_bitmap lseek");
@@ -331,7 +331,7 @@ void write_block_bitmap(int fd)
 void write_inode_bitmap(int fd)
 {
 	/* This is all me */
-	off_t off = lseek(fd, BLOCK_OFFSET(2), SEEK_SET);
+	off_t off = lseek(fd, BLOCK_OFFSET(INODE_BITMAP_BLOCKNO), SEEK_SET);
 	if (off == -1)
 	{
 		errno_exit("inode_bitmap lseek");
@@ -443,7 +443,7 @@ void write_inode_table(int fd)
 void write_root_dir_block(int fd)
 {
 	/* This is all me */
-	off_t off = BLOCK_OFFSET(LOST_AND_FOUND_DIR_BLOCKNO);
+	off_t off = BLOCK_OFFSET(ROOT_DIR_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1)
 	{
@@ -500,7 +500,7 @@ void write_lost_and_found_dir_block(int fd)
 void write_hello_world_file_block(int fd)
 {
 	/* This is all me */
-	off_t off = BLOCK_OFFSET(LOST_AND_FOUND_DIR_BLOCKNO);
+	off_t off = BLOCK_OFFSET(HELLO_WORLD_FILE_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1)
 	{
