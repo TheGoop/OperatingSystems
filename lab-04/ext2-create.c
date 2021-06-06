@@ -305,7 +305,7 @@ void write_block_bitmap(int fd)
 
 	int reserved = 3;
 	// Data blocks
-	for (int i = reserved; i < NUM_BLOCKS * 8; i++)
+	for (int i = reserved; i < NUM_BLOCKS; i++)
 	{
 		// the first NUM_FREE_BLOCKS after the first 3 blocks will be marked as free
 		if ((i - reserved) < NUM_FREE_BLOCKS)
@@ -322,7 +322,7 @@ void write_block_bitmap(int fd)
 
 	// some sort of loading of the bitmap
 
-	if (write(fd, block_bitmap, NUM_BLOCKS * 8) == -1)
+	if (write(fd, block_bitmap, NUM_BLOCKS) == -1)
 	{
 		errno_exit("block_bitmap write");
 	}
@@ -336,13 +336,13 @@ void write_inode_bitmap(int fd)
 	{
 		errno_exit("inode_bitmap lseek");
 	}
-	u8 inode_bitmap[NUM_INODES * 8];
+	u8 inode_bitmap[NUM_INODES];
 	inode_bitmap[0] = 0xFF; // reserved
 	inode_bitmap[1] = 0x1F; // idk
 
 	//some sort of loading of the inode bitmap
 	int reserved = 2;
-	for (int i = reserved; i < NUM_INODES * 8; i++)
+	for (int i = reserved; i < NUM_INODES; i++)
 	{
 		if ((i - reserved) < NUM_FREE_INODES)
 		{
@@ -354,7 +354,7 @@ void write_inode_bitmap(int fd)
 		}
 	}
 
-	if (write(fd, inode_bitmap, NUM_INODES * 8) == -1)
+	if (write(fd, inode_bitmap, NUM_INODES) == -1)
 	{
 		errno_exit("inode_bitmap write");
 	}
