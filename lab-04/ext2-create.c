@@ -336,7 +336,7 @@ void write_inode_bitmap(int fd)
 	{
 		errno_exit("inode_bitmap lseek");
 	}
-	u8 inode_bitmap[NUM_INODES];
+	u8 inode_bitmap[NUM_INODES * 8];
 	inode_bitmap[0] = 0xFF; // reserved
 	inode_bitmap[1] = 0x1F; // idk
 
