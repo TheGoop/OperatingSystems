@@ -451,18 +451,34 @@ void write_root_dir_block(int fd)
 	}
 
 	ssize_t bytes_remaining = BLOCK_SIZE;
+
 	struct ext2_dir_entry current_entry = {0};
 	dir_entry_set(current_entry, EXT2_ROOT_INO, ".");
 	dir_entry_write(current_entry, fd);
-
 	bytes_remaining -= current_entry.rec_len;
 
 	//since this is the root directory, the parent of the root is still the root
 	struct ext2_dir_entry parent_entry = {0};
 	dir_entry_set(parent_entry, EXT2_ROOT_INO, "..");
 	dir_entry_write(parent_entry, fd);
-
 	bytes_remaining -= parent_entry.rec_len;
+
+	//---
+
+	struct ext2_dir_entry hello_world_entry = {0};
+	dir_entry_set(hello_world_entry, HELLO_WORLD_INO, "hello_world");
+	dir_entry_write(hello_world_entry, fd);
+	bytes_remaining -= hello_world_entry.rec_len;
+
+	struct ext2_dir_entry hello_entry = {0};
+	dir_entry_set(hello_entry, HELLO_INO, "hello");
+	dir_entry_write(hello_entry, fd);
+	bytes_remaining -= hello_entry.rec_len;
+
+	struct ext2_dir_entry lf_entry = {0};
+	dir_entry_set(lf_entry, LOST_AND_FOUND_INO, "lost+found");
+	dir_entry_write(lf_entry, fd);
+	bytes_remaining -= lf_entry.rec_len;
 
 	struct ext2_dir_entry fill_entry = {0};
 	fill_entry.rec_len = bytes_remaining;
@@ -506,34 +522,11 @@ void write_hello_world_file_block(int fd)
 	{
 		errno_exit("lseek");
 	}
-
-	ssize_t bytes_remaining = BLOCK_SIZE;
-
-	struct ext2_dir_entry hello_world_entry = {0};
-	dir_entry_set(hello_world_entry, HELLO_WORLD_INO, "hello_world");
-	dir_entry_write(hello_world_entry, fd);
-
-	bytes_remaining -= hello_world_entry.rec_len;
-
-	struct ext2_dir_entry hello_entry = {0};
-	dir_entry_set(hello_entry, HELLO_INO, "hello");
-	dir_entry_write(hello_entry, fd);
-
-	bytes_remaining -= hello_entry.rec_len;
-
-	// struct ext2_dir_entry current_entry = {0};
-	// dir_entry_set(current_entry, HELLO_WORLD_INO, ".");
-	// dir_entry_write(current_entry, fd);
-	// bytes_remaining -= current_entry.rec_len;
-
-	// struct ext2_dir_entry parent_entry = {0};
-	// dir_entry_set(parent_entry, ROOT_DIR_BLOCKNO, "..");
-	// dir_entry_write(parent_entry, fd);
-	// bytes_remaining -= parent_entry.rec_len;
-
-	struct ext2_dir_entry fill_entry = {0};
-	fill_entry.rec_len = bytes_remaining;
-	dir_entry_write(fill_entry, fd);
+	char *msg = "Hello world\n";
+	if (write(fd, msg, strlen(msg)) == -1)
+	{
+		errno_exit("Write hello world block");
+	}
 }
 
 int main(int argc, char *argv[])
