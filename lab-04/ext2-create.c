@@ -319,7 +319,7 @@ void write_block_bitmap(int fd)
 			block_bitmap[i] = 0xFF;
 		}
 	}
-	block_bitmap[127] = 0x7F;
+	block_bitmap[128] = 0x7F;
 
 	if (write(fd, block_bitmap, NUM_BLOCKS) == -1)
 	{
