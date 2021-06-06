@@ -308,7 +308,7 @@ void write_block_bitmap(int fd)
 	for (int i = reserved; i < NUM_BLOCKS; i++)
 	{
 		// the first NUM_FREE_BLOCKS after the first 3 blocks will be marked as free
-		if (i < reserved + NUM_FREE_BLOCKS)
+		if (i < NUM_BLOCKS / 8)
 		{
 			block_bitmap[i] = 0x00;
 		}
@@ -344,7 +344,7 @@ void write_inode_bitmap(int fd)
 	int reserved = 2;
 	for (int i = reserved; i < NUM_BLOCKS; i++)
 	{
-		if ((i - reserved) < NUM_FREE_INODES)
+		if (i < (NUM_INODES / 8))
 		{
 			inode_bitmap[i] = 0x00;
 		}
