@@ -38,6 +38,7 @@ typedef int32_t i32;
 #define NUM_FREE_BLOCKS (NUM_BLOCKS - LAST_BLOCK - 1)
 #define NUM_FREE_INODES (NUM_INODES - LAST_INO)
 
+#define EXT2_SUPER_MAGIC 0xEF53
 /* http://www.nongnu.org/ext2-doc/ext2.html */
 /* http://www.science.smith.edu/~nhowe/262/oldlabs/ext2.html */
 
@@ -220,25 +221,25 @@ void write_superblock(int fd)
 	superblock.s_free_inodes_count = NUM_FREE_INODES;
 	superblock.s_first_data_block = SUPERBLOCK_BLOCKNO;
 	/* ^ First Data Block since our block size only 1kb, the first data block is gonna be where the super block is and either 0 or 1 in this case 1*/
-	superblock.s_log_block_size = 0;							  /* 1024 */
-	superblock.s_log_frag_size = 0;								  /* 1024 */
-	superblock.s_blocks_per_group = BLOCK_SIZE * 8;				  // 8 bits in a byte, block_size in bytes
-	superblock.s_frags_per_group = superblock.s_blocks_per_group; // we assume as many blocks as frags
+	superblock.s_log_block_size = 0;				/* 1024 */
+	superblock.s_log_frag_size = 0;					/* 1024 */
+	superblock.s_blocks_per_group = BLOCK_SIZE * 8; // 8 bits in a byte, block_size in bytes
+	superblock.s_frags_per_group = BLOCK_SIZE * 8;	// we assume as many blocks as frags
 	superblock.s_inodes_per_group = NUM_INODES;
-	superblock.s_mtime = 0;			  /* Mount time */
-	superblock.s_wtime = 0;			  /* Write time */
-	superblock.s_mnt_count = 0;		  /* Number of times mounted so far */
-	superblock.s_max_mnt_count = 0;	  /* Make this unlimited */
-	superblock.s_magic = 0;			  /* ext2 Signature */
-	superblock.s_state = 0;			  /* File system is clean */
-	superblock.s_errors = 0;		  /* Ignore the error (continue on) */
-	superblock.s_minor_rev_level = 0; /* Leave this as 0 */
-	superblock.s_lastcheck = 0;		  /* Last check time */
-	superblock.s_checkinterval = 0;	  /* Force checks by making them every 1 second */
-	superblock.s_creator_os = 0;	  /* Linux */
-	superblock.s_rev_level = 0;		  /* Leave this as 0 */
-	superblock.s_def_resuid = 0;	  /* root */
-	superblock.s_def_resgid = 0;	  /* root */
+	superblock.s_mtime = 0;				   /* Mount time */
+	superblock.s_wtime = 0;				   /* Write time */
+	superblock.s_mnt_count = 0;			   /* Number of times mounted so far */
+	superblock.s_max_mnt_count = 0;		   /* Make this unlimited */
+	superblock.s_magic = EXT2_SUPER_MAGIC; /* ext2 Signature */
+	superblock.s_state = 0;				   /* File system is clean */
+	superblock.s_errors = 0;			   /* Ignore the error (continue on) */
+	superblock.s_minor_rev_level = 0;	   /* Leave this as 0 */
+	superblock.s_lastcheck = 0;			   /* Last check time */
+	superblock.s_checkinterval = 0;		   /* Force checks by making them every 1 second */
+	superblock.s_creator_os = 0;		   /* Linux */
+	superblock.s_rev_level = 0;			   /* Leave this as 0 */
+	superblock.s_def_resuid = 0;		   /* root */
+	superblock.s_def_resgid = 0;		   /* root */
 
 	/* You can leave everything below this line the same, delete this
 	   comment when you're done the lab */
