@@ -19,6 +19,7 @@ typedef int32_t i32;
 #define BLOCK_OFFSET(i) (i * BLOCK_SIZE)
 #define NUM_BLOCKS 1024
 #define NUM_INODES 128
+#define BYTE_SIZE 8
 
 #define LOST_AND_FOUND_INO 11
 #define HELLO_WORLD_INO 12
