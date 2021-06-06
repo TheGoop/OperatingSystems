@@ -298,7 +298,7 @@ void write_block_bitmap(int fd)
 	{
 		errno_exit("block_bitmap lseek");
 	}
-	u8 block_bitmap[NUM_BLOCKS * 8];
+	u8 block_bitmap[NUM_BLOCKS];
 	block_bitmap[0] = 0xFF; // Zeroth block is reserved as the boot block
 	block_bitmap[1] = 0xFF; // Super block
 	block_bitmap[2] = 0x7F; // Group descriptor
