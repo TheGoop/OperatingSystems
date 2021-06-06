@@ -24,4 +24,6 @@ total 7
 
 ## Cleaning up
 
-Run make clean.
+sudo umount mnt
+rmdir mnt
+make clean
