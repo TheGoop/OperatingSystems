@@ -322,7 +322,7 @@ void write_block_bitmap(int fd)
 
 	// some sort of loading of the bitmap
 
-	if (write(fd, block_bitmap, NUM_BLOCKS) == -1)
+	if (write(fd, block_bitmap, NUM_BLOCKS * 8) == -1)
 	{
 		errno_exit("block_bitmap write");
 	}
@@ -354,7 +354,7 @@ void write_inode_bitmap(int fd)
 		}
 	}
 
-	if (write(fd, inode_bitmap, NUM_INODES) == -1)
+	if (write(fd, inode_bitmap, NUM_INODES * 8) == -1)
 	{
 		errno_exit("inode_bitmap write");
 	}
