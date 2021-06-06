@@ -276,11 +276,11 @@ void write_block_group_descriptor_table(int fd)
 	struct ext2_block_group_descriptor block_group_descriptor = {0};
 
 	/* As per http://www.nongnu.org/ext2-doc/ext2.html#bg-block-bitmap */
-	block_group_descriptor.bg_block_bitmap = 4;
-	block_group_descriptor.bg_inode_bitmap = 4;
-	block_group_descriptor.bg_inode_table = 4;
-	block_group_descriptor.bg_free_blocks_count = 2;
-	block_group_descriptor.bg_free_inodes_count = 2;
+	block_group_descriptor.bg_block_bitmap = BLOCK_BITMAP_BLOCKNO;
+	block_group_descriptor.bg_inode_bitmap = INODE_BITMAP_BLOCKNO;
+	block_group_descriptor.bg_inode_table = INODE_TABLE_BLOCKNO;
+	block_group_descriptor.bg_free_blocks_count = NUM_FREE_BLOCKS;
+	block_group_descriptor.bg_free_inodes_count = NUM_FREE_INODES;
 	block_group_descriptor.bg_used_dirs_count = 2;
 
 	ssize_t size = sizeof(block_group_descriptor);
