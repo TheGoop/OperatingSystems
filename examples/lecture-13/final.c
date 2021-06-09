@@ -33,7 +33,7 @@ int main()
     pthread_create(&threads[i], NULL, &run, NULL);
   }
   printf("Here \n");
-  for (int i = 0; i < NUM_THREADS; ++i)
+  for (int i = 0; i < NUM_THREADS - 1; ++i)
   {
     pthread_join(threads[i], NULL);
   }
