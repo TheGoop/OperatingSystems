@@ -3,43 +3,39 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define NTHREADS 50000
+#define NUM_THREADS 4
 
 void *run(void *v)
 {
-  fork();
-  printf("Hello\n");
-  return 0;
+
+  pid_t pid;
+  pid = fork();
+  if (pid == 0)
+  {
+    printf("Hello from child \n");
+  }
+  else
+  {
+    printf("Hello from parent\n");
+  }
 }
 
-int main(int argc, char *argv[])
+int main()
 {
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
-  for (int i = 0; i < NTHREADS; ++i)
+  pthread_t threads[NUM_THREADS];
+  for (int i = 0; i < NUM_THREADS; ++i)
   {
-    pthread_t tid;
-    int rc = pthread_create(&tid, &attr, run, NULL);
-    if (rc)
-    {
-      printf("ERROR; return code from pthread_create() is %d\n", rc);
-      exit(rc);
-    }
-
-    /* Wait for the thread */
-    rc = pthread_join(tid, NULL);
-    if (rc)
-    {
-      printf("ERROR; return code from pthread_join() is %d\n", rc);
-      exit(rc);
-    }
+    pthread_create(&threads[i], NULL, &run, NULL);
   }
-
-  pthread_attr_destroy(&attr);
+  printf("Here \n");
+  for (int i = 0; i < NUM_THREADS; ++i)
+  {
+    pthread_join(threads[i], NULL);
+  }
   return 0;
 }
